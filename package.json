@@ -1,18 +1,18 @@
 {
-  "name": "my-extension",
-  "displayName": "My-Extension",
-  "displayName:zh-CN": "我的扩展",
+  "name": "zhubai-toolbox",
+  "displayName": "Zhubai Toolbox 🧰",
+  "displayName:zh-CN": "竹白工具箱 🧰",
   "version": "0.1.0",
-  "description": "try to take over the world!",
-  "description:zh-CN": "让世界更美好！",
-  "author": "You",
-  "namespace": "https://github.com/utags/browser-extension-starter",
-  "icon": "https://www.tampermonkey.net/favicon.ico",
+  "description": "Tools for Zhubai creators.",
+  "description:zh-CN": "为竹白创作者的工具箱，包括订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。",
+  "author": "Pipecraft",
+  "namespace": "https://github.com/utags/zhubai-toolbox",
+  "icon": "https://zhubai.love/favicon.png",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/utags/browser-extension-starter/issues"
+    "url": "https://github.com/utags/zhubai-toolbox/issues"
   },
-  "homepage": "https://github.com/utags/browser-extension-starter#readme",
+  "homepage": "https://github.com/utags/zhubai-toolbox#readme",
   "scripts": {
     "p": "prettier --write .",
     "lint": "run-s lint:*",
