@@ -3,11 +3,17 @@ import {
   $$,
   addElement,
   addEventListener,
+  addStyle,
   createElement,
   registerMenuCommand,
 } from "browser-extension-utils"
+import styleText from "data-text:./content.scss"
 
-async function fetchZhubaiSubscriptions(page, subscriberEmailSet, subscribers) {
+async function fetchZhubaiSubscriptions(
+  page: number,
+  subscriberEmailSet: Set<string>,
+  subscribers: Array<Record<string, unknown>>
+) {
   page = page || 1
   const url = `https://zhubai.love/api/dashboard/subscriptions?limit=20&page=${page}`
 
@@ -20,7 +26,7 @@ async function fetchZhubaiSubscriptions(page, subscriberEmailSet, subscribers) {
     return
   }
 
-  const data = await response.json()
+  const data = (await response.json()) as Promise<Record<string, unknown>>
   // console.log(data)
 
   for (const subscriber of data.data) {
@@ -30,73 +36,102 @@ async function fetchZhubaiSubscriptions(page, subscriberEmailSet, subscribers) {
     }
   }
 
-  const limit = data.pagination.limit
-  const total = data.pagination.total_count
+  const limit = data.pagination.limit as number
+  const total = data.pagination.total_count as number
 
   return { limit, total }
 }
 
 async function main() {
+  addStyle(styleText)
+
+  const subscriberEmailSet = new Set<string>()
+  const subscribers = []
+  let page = 1
+  let isRunning = false
+  let paused = false
+
   const modal = addElement(document.body, "div", {
-    style:
-      "width: 100%; height: 100%; position: fixed; top: 72px; left: 30px; padding: 10px; background-color: #fff;",
+    class: "zbtb",
+  })
+
+  const toolbar = addElement(modal, "div", {
+    style: "display: flex;",
+  })
+
+  const pauseButton = addElement(toolbar, "button", {
+    textContent: "暂停 ⏸️",
+    async onclick(event) {
+      paused = !paused
+      event.target.textContent = paused ? "继续 ▶️" : "暂停 ⏸️"
+      if (!paused) {
+        await run()
+      }
+    },
   })
 
   const message = addElement(modal, "p", {
-    style: "font-weight: 600; font-size: 16px; color: #060e4b;",
     textContent: "🚀 正在导出数据 ...",
   })
 
   addElement(modal, "p", {
-    style: "font-weight: 600; font-size: 16px; color: #060e4b;",
     textContent: "📮 邮箱订阅列表",
   })
 
-  const textarea = addElement(modal, "textarea", {
-    style: "width: 90%; height: 40%; padding: 5px;",
-  })
+  const textarea = addElement(modal, "textarea")
 
   addElement(modal, "p", {
-    style: "font-weight: 600; font-size: 16px; color: #060e4b;",
     textContent: "📖 详细订阅用户数据，包含邮箱订阅和微信订阅",
   })
 
-  const textarea2 = addElement(modal, "textarea", {
-    style: "width: 90%; height: 40%; padding: 5px;",
-  })
+  const textarea2 = addElement(modal, "textarea")
 
-  const subscriberEmailSet = new Set()
-  const subscribers = []
-  let page = 1
-  try {
-    while (true) {
-      const result = await fetchZhubaiSubscriptions(
-        page,
-        subscriberEmailSet,
-        subscribers
-      )
-      const total = result.total
-      const limit = result.limit
-      message.textContent = `🚗 正在获取数据: ${page} / ${Math.round(
-        total / 20
-      )}`
-      if (subscribers.length > 0) {
-        textarea.value = JSON.stringify([...subscriberEmailSet], null, 2)
-        textarea2.value = JSON.stringify(subscribers, null, 2)
-      }
-
-      if (limit * page < total) {
-        page++
-      } else {
-        break
-      }
+  const run = async () => {
+    if (isRunning) {
+      return
     }
 
-    message.textContent = `🎉 数据导出完毕。请复制下面的数据，做好备份。`
-  } catch (error) {
-    console.error(error)
-    message.innerHTML = `数据导出失败，有问题请在 <a href="https://github.com/utags/zhubai-toolbox/issues" target="_blank">GitHub</a> 或 <a href="https://greasyfork.org/scripts/463934" target="_blank">Greasy Fork</a> 反馈。`
+    try {
+      isRunning = true
+      while (isRunning) {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await fetchZhubaiSubscriptions(
+          page,
+          subscriberEmailSet,
+          subscribers
+        )
+        const total = result.total
+        const limit = result.limit
+        message.textContent = `🚗 正在获取数据: ${page} / ${Math.round(
+          total / 20
+        )}`
+        if (subscribers.length > 0) {
+          textarea.value = JSON.stringify([...subscriberEmailSet], null, 2)
+          textarea2.value = JSON.stringify(subscribers, null, 2)
+        }
+
+        if (limit * page < total) {
+          page++
+          if (paused) {
+            message.textContent = `⏸️ 暂停中。已获取数据: ${
+              page - 1
+            } / ${Math.round(total / 20)}`
+            isRunning = false
+          }
+        } else {
+          message.textContent = `🎉 数据导出完毕。请复制下面的数据，做好备份。`
+          isRunning = false
+          pauseButton.disabled = true
+        }
+      }
+      // eslint-disable-next-line @typescript-eslint/no-implicit-any-catch
+    } catch (error) {
+      console.error(error)
+      message.innerHTML = `数据导出失败，有问题请在 <a href="https://github.com/utags/zhubai-toolbox/issues" target="_blank">GitHub</a> 或 <a href="https://greasyfork.org/scripts/463934" target="_blank">Greasy Fork</a> 反馈。`
+    }
   }
+
+  await run()
 }
 
 const intervalId = setInterval(() => {
@@ -108,8 +143,8 @@ const intervalId = setInterval(() => {
     })
     button.after(newButton)
     button.remove()
-    newButton.addEventListener("click", (event) => {
-      main()
+    newButton.addEventListener("click", async (event) => {
+      await main()
       event.preventDefault()
     })
     clearInterval(intervalId)
