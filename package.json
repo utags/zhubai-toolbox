@@ -2,7 +2,7 @@
   "name": "zhubai-toolbox",
   "displayName": "Zhubai Toolbox 🧰",
   "displayName:zh-CN": "竹白工具箱 🧰",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Tools for Zhubai creators.",
   "description:zh-CN": "为竹白创作者的工具箱，包括订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。",
   "author": "Pipecraft",

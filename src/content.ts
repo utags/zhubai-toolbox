@@ -124,7 +124,6 @@ async function main() {
           pauseButton.disabled = true
         }
       }
-      // eslint-disable-next-line @typescript-eslint/no-implicit-any-catch
     } catch (error) {
       console.error(error)
       message.innerHTML = `数据导出失败，有问题请在 <a href="https://github.com/utags/zhubai-toolbox/issues" target="_blank">GitHub</a> 或 <a href="https://greasyfork.org/scripts/463934" target="_blank">Greasy Fork</a> 反馈。`

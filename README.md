@@ -20,10 +20,10 @@
 
 ## Installation
 
-- Chrome Extension: TBD
-- Firefox Addon: TBD
+- Chrome Extension: [Manual Installation](https://utags.github.io/zhubai-toolbox/manual-installation.html)
+- Firefox Addon: [Manual Installation](https://utags.github.io/zhubai-toolbox/manual-installation.html)
 - Userscript: [https://greasyfork.org/zh-CN/scripts/463934-zhubai-toolbox](https://greasyfork.org/zh-CN/scripts/463934-zhubai-toolbox)
-- [Manual Installation](manual-installation.md)
+- Bookmarklet: [Installation](https://utags.github.io/zhubai-toolbox/bookmarklet-installation.html)
 
 ## Development
 
