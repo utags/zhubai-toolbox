@@ -27,27 +27,29 @@
   }
 }
 
-#left_section {
+#left_aside,
+#right_aside {
   display: none;
 }
 
 html[data-zbtb="posts-entry"] {
-  --section-width: 300px;
-  margin-left: var(--section-width);
-  margin-right: var(--section-width);
+  --aside-width: 300px;
+  margin-left: var(--aside-width);
+  margin-right: var(--aside-width);
 
   nav {
     left: 0;
   }
 
-  #left_section {
+  #left_aside,
+  #right_aside {
     display: block;
     position: fixed;
     top: 72px;
     left: 0;
     padding: 0 0 72px;
     height: 100%;
-    max-width: var(--section-width);
+    max-width: var(--aside-width);
     overflow: hidden;
     box-sizing: border-box;
 
@@ -62,6 +64,7 @@ html[data-zbtb="posts-entry"] {
       display: block;
       text-decoration: none;
       margin-bottom: 20px;
+      cursor: pointer;
     }
 
     .title {
@@ -73,11 +76,69 @@ html[data-zbtb="posts-entry"] {
       word-wrap: break-word; /* Fix: iOS Safari Bug */
       overflow-wrap: break-word;
     }
+
+    .item.current .title {
+      color: var(--theme-primary-color);
+    }
+  }
+  #right_aside {
+    left: unset;
+    right: 0;
+    padding: 0 0 122px;
+
+    h2 {
+      padding-left: 20px;
+    }
+    h3 {
+      padding-left: 40px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      overflow: hidden;
+      box-sizing: border-box;
+      width: var(--aside-width);
+      height: 50px;
+
+      .button {
+        height: 24px;
+        width: 24px;
+        background: none;
+        border: none;
+        outline: none;
+        border-radius: 4px;
+        font-family: inherit;
+        -webkit-tap-highlight-color: transparent;
+        padding: 10px;
+        color: #060e4b;
+      }
+      .button:hover {
+        background: rgba(0, 0, 0, 0.05);
+        opacity: 0.8;
+      }
+      .button.disabled {
+        opacity: 0.4;
+        background: none;
+        cursor: not-allowed;
+      }
+    }
   }
 }
 
 @media (max-width: 1000px) {
   html[data-zbtb="posts-entry"] {
-    --section-width: 200px;
+    --aside-width: 200px;
+  }
+}
+@media (max-width: 767px) {
+  html[data-zbtb="posts-entry"] {
+    --aside-width: 0;
+
+    #left_aside,
+    #right_aside {
+      display: none;
+    }
   }
 }

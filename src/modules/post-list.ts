@@ -21,7 +21,6 @@ async function fetchPostList(url: string) {
   }
 
   page++
-  console.log(url, page)
   const response = await fetch(url, {})
 
   console.log("Fetched page", page)
@@ -32,7 +31,6 @@ async function fetchPostList(url: string) {
   }
 
   const data = (await response.json()) as Promise<Record<string, unknown>>
-  console.log(data)
 
   return data
 }
@@ -49,7 +47,6 @@ async function updatePostList(url, updateAll = false) {
   }))
   nextUrl = data.pagination?.next
   const hasNext = data.pagination?.has_next
-  console.log("nextUrl", nextUrl)
 
   if (newList) {
     const ids = new Set(newList.map((post) => post.id))
@@ -84,13 +81,11 @@ async function updatePostList(url, updateAll = false) {
 export async function getPostListFromCache(page = 1) {
   const limit = 20
   const posts = (await getValue(storageKey)) || []
-  console.log(posts)
   return posts.slice((page - 1) * limit, page * limit - 1)
 }
 
 export async function getAllPostListFromCache() {
   const posts = (await getValue(storageKey)) || []
-  console.log(posts)
   return posts
 }
 
@@ -100,8 +95,7 @@ export async function init(token: string, valueChangeListener) {
   const now = Date.now()
   const lastPageUpdatedAt = await getValue("last_page_updated_at")
   const firstPageUpdatedAt = await getValue("first_page_updated_at")
-  console.log("lastPageUpdatedAt", lastPageUpdatedAt)
-  console.log("firstPageUpdatedAt", firstPageUpdatedAt)
+
   if (
     !lastPageUpdatedAt ||
     now - lastPageUpdatedAt > 10 * 24 * 60 * 60 * 1000 /* 10 days */
@@ -115,26 +109,34 @@ export async function init(token: string, valueChangeListener) {
 }
 
 export async function showPostList() {
-  const section =
-    $("#left_section") ||
-    addElement(document.body, "section", {
-      id: "left_section",
+  const aside =
+    $("#left_aside") ||
+    addElement(document.body, "aside", {
+      id: "left_aside",
     })
 
   const container =
-    $("#left_section .container") ||
-    addElement(section, "div", {
+    $("#left_aside .container") ||
+    addElement(aside, "div", {
       class: "container",
     })
 
   container.innerHTML = ""
 
+  const currentId = (/posts\/(\d+)/.exec(location.pathname) || [])[1]
+
   const postList = await getAllPostListFromCache()
   for (const post of postList) {
     const a = addElement(container, "a", {
-      class: "item",
+      class: currentId === post.id ? "item current" : "item",
       href: "/posts/" + post.id,
     })
+    if (currentId === post.id) {
+      setTimeout(() => {
+        a.scrollIntoView({ block: "nearest" })
+      }, 1)
+    }
+
     addElement(a, "h2", {
       class: "title",
       textContent: post.title,

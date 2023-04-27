@@ -7,7 +7,10 @@ import {
 import styleText from "data-text:./content.scss"
 import type { PlasmoCSConfig } from "plasmo"
 
+import { showToolbar } from "~modules/toolbar"
+
 import { init, showPostList } from "./modules/post-list"
+import { showTOC } from "./modules/post-toc"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://*.zhubai.love/*"],
@@ -146,13 +149,16 @@ async function main2() {
 
   const url = location.href
   // Post page
-  if (/^https:\/\/\w+\.zhubai\.love\/posts\//.test(url)) {
+  if (
+    /^https:\/\/\w+\.zhubai\.love\/posts\//.test(url) &&
+    !location.pathname.includes("edit")
+  ) {
     document.documentElement.dataset.zbtb = "posts-entry"
-    ;(async () => {
-      const token = location.hostname.split(".")[0]
-      await init(token, showPostList)
-      await showPostList()
-    })()
+    const token = location.hostname.split(".")[0]
+    await init(token, showPostList)
+    await showPostList()
+    showTOC()
+    await showToolbar()
     // 订阅者 page
   } else if (url.includes("https://zhubai.love/creator/subscribers")) {
     const intervalId = setInterval(() => {
