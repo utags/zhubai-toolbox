@@ -14,3 +14,8 @@
 // @connect              zhubai.love
 // ==/UserScript==
 //
+//// Recent Updates
+//// - 0.1.0 2023.04.27
+////    - 详情页左侧栏显示文章目录功能
+////
+

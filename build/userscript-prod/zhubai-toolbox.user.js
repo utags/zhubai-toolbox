@@ -4,21 +4,25 @@
 // @namespace            https://github.com/utags/zhubai-toolbox
 // @homepageURL          https://github.com/utags/zhubai-toolbox#readme
 // @supportURL           https://github.com/utags/zhubai-toolbox/issues
-// @version              0.0.3
-// @description          Tools for Zhubai creators.
-// @description:zh-CN    为竹白创作者的工具箱，包括订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
+// @version              0.1.0
+// @description          Tools for Zhubai creators and readers. 为竹白（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
+// @description:zh-CN    为竹白（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
 // @icon                 https://zhubai.love/favicon.png
 // @author               Pipecraft
 // @license              MIT
-// @match                https://zhubai.love/*
+// @match                https://*.zhubai.love/*
 // @connect              zhubai.love
 // @grant                GM_addElement
-// @grant                GM_addStyle
 // ==/UserScript==
 //
+//// Recent Updates
+//// - 0.1.0 2023.04.27
+////    - 详情页左侧栏显示文章目录功能
+////
 ;(() => {
   "use strict"
   var doc = document
+  var $ = (selectors, element) => (element || doc).querySelector(selectors)
   var createElement = (tagName, attributes) =>
     setAttributes(doc.createElement(tagName), attributes)
   var addElement = (parentNode, tagName, attributes) => {
@@ -38,11 +42,6 @@
     setAttributes(tagName, attributes)
     parentNode.append(tagName)
     return tagName
-  }
-  var addStyle = (styleText) => {
-    const element = createElement("style", { textContent: styleText })
-    doc.head.append(element)
-    return element
   }
   var addEventListener = (element, type, listener, options) => {
     if (!element) {
@@ -127,21 +126,164 @@
           return tagName
         }
       : addElement
-  var addStyle2 =
-    typeof GM_addStyle === "function"
-      ? (styleText) => GM_addStyle(styleText)
-      : addStyle
   var content_default =
-    ".zbtb{width:100%;height:100%;position:fixed;top:72px;left:30px;padding:10px;background-color:#fff;font-weight:600;font-size:16px;color:#060e4b}.zbtb button{font-weight:600;font-size:16px;color:#060e4b}.zbtb button:disabled{opacity:40%}.zbtb textarea{width:90%;height:40%;padding:5px}"
+    ".zbtb{width:100%;height:100%;position:fixed;top:72px;left:30px;padding:10px;background-color:#fff;font-weight:600;font-size:16px;color:#060e4b}.zbtb button{font-weight:600;font-size:16px;color:#060e4b}.zbtb button:disabled{opacity:40%}.zbtb textarea{width:90%;height:40%;padding:5px}#left_section{display:none}html[data-zbtb=posts-entry]{--section-width: 300px;margin-left:var(--section-width);margin-right:var(--section-width)}html[data-zbtb=posts-entry] nav{left:0}html[data-zbtb=posts-entry] #left_section{display:block;position:fixed;top:72px;left:0;padding:0 0 72px;height:100%;max-width:var(--section-width);overflow:hidden;box-sizing:border-box}html[data-zbtb=posts-entry] #left_section .container{padding:20px;height:100%;overflow:auto;box-sizing:border-box}html[data-zbtb=posts-entry] #left_section .item{display:block;text-decoration:none;margin-bottom:20px}html[data-zbtb=posts-entry] #left_section .title{margin:0;font-weight:600;font-size:14px;line-height:20px;color:#1a1a1a;word-wrap:break-word;overflow-wrap:break-word}@media(max-width: 1000px){html[data-zbtb=posts-entry]{--section-width: 200px}}"
+  var listeners = {}
+  var prefix = "extension."
+  var getNamespacedKey = (key) => prefix + key
+  var getUnnamespacedKey = (key) => key.slice(prefix.length)
+  var _getValue = (key) => localStorage.getItem(key)
+  var _setValue = (key, value) => {
+    const oldValue = localStorage.getItem(key)
+    if (oldValue === value) return
+    localStorage.setItem(key, value)
+    if (listeners[key]) {
+      for (const func of listeners[key]) {
+        func(getUnnamespacedKey(key), oldValue, value)
+      }
+    }
+  }
+  var _addValueChangeListener = (key, func) => {
+    listeners[key] = listeners[key] || []
+    listeners[key].push(func)
+    return () => {
+      if (listeners[key] && listeners[key].length > 0) {
+        for (let i = listeners[key].length - 1; i >= 0; i--) {
+          if (listeners[key][i] === func) {
+            listeners[key].splice(i, 1)
+          }
+        }
+      }
+    }
+  }
+  var getValue = (key) => {
+    const value = _getValue(getNamespacedKey(key))
+    return value && value !== "undefined" ? JSON.parse(value) : void 0
+  }
+  var setValue = (key, value) => {
+    if (value !== void 0)
+      _setValue(getNamespacedKey(key), JSON.stringify(value))
+  }
+  var addValueChangeListener = (key, func) =>
+    _addValueChangeListener(getNamespacedKey(key), func)
+  var storageKey = "zhubai.posts"
+  var nextUrl = ""
+  var page = 0
+  async function fetchPostList(url) {
+    if (!url) {
+      return
+    }
+    page++
+    console.log(url, page)
+    const response = await fetch(url, {})
+    console.log("Fetched page", page)
+    if (response.status !== 200) {
+      console.warn(response)
+      return
+    }
+    const data = await response.json()
+    console.log(data)
+    return data
+  }
+  async function updatePostList(url, updateAll = false) {
+    var _a, _b, _c
+    const data = await fetchPostList(url)
+    if (!data) {
+      return
+    }
+    const newList =
+      (_a = data.data) == null
+        ? void 0
+        : _a.map((post) => ({
+            id: post.id,
+            title: post.title,
+          }))
+    nextUrl = (_b = data.pagination) == null ? void 0 : _b.next
+    const hasNext = (_c = data.pagination) == null ? void 0 : _c.has_next
+    console.log("nextUrl", nextUrl)
+    if (newList) {
+      const ids = new Set(newList.map((post) => post.id))
+      const oldList = (await getValue(storageKey)) || []
+      for (const post of oldList) {
+        if (!ids.has(post.id)) {
+          newList.push(post)
+        }
+      }
+      newList.sort((a, b) => {
+        return b.id - a.id
+      })
+      await setValue(storageKey, newList)
+      if (page === 1) {
+        await setValue("first_page_updated_at", Date.now())
+      }
+      if (hasNext === false) {
+        await setValue("last_page_updated_at", Date.now())
+      }
+    }
+    if (updateAll && nextUrl) {
+      await updatePostList(nextUrl, updateAll)
+    }
+  }
+  async function getAllPostListFromCache() {
+    const posts = (await getValue(storageKey)) || []
+    console.log(posts)
+    return posts
+  }
+  async function init(token, valueChangeListener) {
+    nextUrl = `https://${token}.zhubai.love/api/publications/${token}/posts?publication_id_type=token`
+    page = 0
+    const now = Date.now()
+    const lastPageUpdatedAt = await getValue("last_page_updated_at")
+    const firstPageUpdatedAt = await getValue("first_page_updated_at")
+    console.log("lastPageUpdatedAt", lastPageUpdatedAt)
+    console.log("firstPageUpdatedAt", firstPageUpdatedAt)
+    if (
+      !lastPageUpdatedAt ||
+      now - lastPageUpdatedAt > 10 * 24 * 60 * 60 * 1e3
+    ) {
+      setTimeout(async () => updatePostList(nextUrl, true), 100)
+    } else if (now - firstPageUpdatedAt > 10 * 60 * 1e3) {
+      setTimeout(async () => updatePostList(nextUrl, false), 100)
+    }
+    addValueChangeListener(storageKey, valueChangeListener)
+  }
+  async function showPostList() {
+    const section =
+      $("#left_section") ||
+      addElement2(document.body, "section", {
+        id: "left_section",
+      })
+    const container =
+      $("#left_section .container") ||
+      addElement2(section, "div", {
+        class: "container",
+      })
+    container.innerHTML = ""
+    const postList = await getAllPostListFromCache()
+    for (const post of postList) {
+      const a = addElement2(container, "a", {
+        class: "item",
+        href: "/posts/" + post.id,
+      })
+      addElement2(a, "h2", {
+        class: "title",
+        textContent: post.title,
+      })
+    }
+  }
+  var config = {
+    matches: ["https://*.zhubai.love/*"],
+    world: "MAIN",
+  }
   async function fetchZhubaiSubscriptions(
-    page,
+    page2,
     subscriberEmailSet,
     subscribers
   ) {
-    page = page || 1
-    const url = `https://zhubai.love/api/dashboard/subscriptions?limit=20&page=${page}`
+    page2 = page2 || 1
+    const url = `https://zhubai.love/api/dashboard/subscriptions?limit=20&page=${page2}`
     const response = await fetch(url, {})
-    console.log("Fetched page", page)
+    console.log("Fetched page", page2)
     if (response.status !== 200) {
       console.warn(response)
       return
@@ -158,10 +300,9 @@
     return { limit, total }
   }
   async function main() {
-    addStyle2(content_default)
     const subscriberEmailSet = /* @__PURE__ */ new Set()
     const subscribers = []
-    let page = 1
+    let page2 = 1
     let isRunning = false
     let paused = false
     const modal = addElement2(document.body, "div", {
@@ -202,24 +343,24 @@
         isRunning = true
         while (isRunning) {
           const result = await fetchZhubaiSubscriptions(
-            page,
+            page2,
             subscriberEmailSet,
             subscribers
           )
           const total = result.total
           const limit = result.limit
-          message.textContent = `\u{1F697} \u6B63\u5728\u83B7\u53D6\u6570\u636E: ${page} / ${Math.round(
+          message.textContent = `\u{1F697} \u6B63\u5728\u83B7\u53D6\u6570\u636E: ${page2} / ${Math.round(
             total / 20
           )}`
           if (subscribers.length > 0) {
             textarea.value = JSON.stringify([...subscriberEmailSet], null, 2)
             textarea2.value = JSON.stringify(subscribers, null, 2)
           }
-          if (limit * page < total) {
-            page++
+          if (limit * page2 < total) {
+            page2++
             if (paused) {
               message.textContent = `\u23F8\uFE0F \u6682\u505C\u4E2D\u3002\u5DF2\u83B7\u53D6\u6570\u636E: ${
-                page - 1
+                page2 - 1
               } / ${Math.round(total / 20)}`
               isRunning = false
             }
@@ -236,20 +377,47 @@
     }
     await run()
   }
-  var intervalId = setInterval(() => {
-    const button = document.querySelector("th:nth-of-type(6) button")
-    if (button && button.textContent === "\u5BFC\u5165/\u5BFC\u51FA") {
-      const newButton = createElement("button", {
-        textContent: "\u5BFC\u5165/\u5BFC\u51FA",
-        class: "Button_button__2Ce79 Button_defaultButton__1bbUl",
+  async function main2() {
+    if (!$("#zbtb_style")) {
+      addElement2(document.head, "style", {
+        id: "zbtb_style",
+        textContent: content_default,
       })
-      button.after(newButton)
-      button.remove()
-      newButton.addEventListener("click", async (event) => {
-        await main()
-        event.preventDefault()
-      })
-      clearInterval(intervalId)
     }
-  }, 1e3)
+    const url = location.href
+    if (/^https:\/\/\w+\.zhubai\.love\/posts\//.test(url)) {
+      document.documentElement.dataset.zbtb = "posts-entry"
+      ;(async () => {
+        const token = location.hostname.split(".")[0]
+        await init(token, showPostList)
+        await showPostList()
+      })()
+    } else if (url.includes("https://zhubai.love/creator/subscribers")) {
+      const intervalId = setInterval(() => {
+        const button = document.querySelector("th:nth-of-type(6) button")
+        if (button && button.textContent === "\u5BFC\u5165/\u5BFC\u51FA") {
+          const newButton = createElement("button", {
+            textContent: "\u5BFC\u5165/\u5BFC\u51FA",
+            class: "Button_button__2Ce79 Button_defaultButton__1bbUl",
+          })
+          button.after(newButton)
+          button.remove()
+          newButton.addEventListener("click", async (event) => {
+            await main()
+            event.preventDefault()
+          })
+          clearInterval(intervalId)
+        }
+      }, 1e3)
+    } else {
+      document.documentElement.dataset.zbtb = "0"
+    }
+  }
+  main2()
+  addEventListener(window, "popstate", main2)
+  var _pushState = history.pushState
+  history.pushState = function (o, a, u) {
+    _pushState.call(history, o, a, u)
+    main2()
+  }
 })()

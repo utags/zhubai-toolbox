@@ -1,22 +1,35 @@
 # 竹白工具箱 🧰
 
-为竹白创作者的工具箱，包括订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
+为[竹白](https://zhubai.love/)（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
 
 欢迎订阅我的[《好工具周刊》](https://bestxtools.zhubai.love/)。
 
 竹白没有官方的交流社区，大家有什么问题，欢迎来[这里](https://discuss-cn.pipecraft.net/t/zhubai)交流。
 
+## 功能
+
+- 详情页左侧栏显示文章目录 ✅
+- 详情页右侧栏显示网站目录大纲（TOC）(Comming soon)
+- 订阅者信息导出 ✅
+- Markdown 编辑器 (Comming soon)
+
+## 截图
+
+- 详情页左侧栏显示文章目录
+
+![zhubai-toolbox-screenshots-03.png](assets/zhubai-toolbox-screenshots-03.png)
+
+- 订阅者信息导出
+
 ![zhubai-toolbox-screenshots-01.png](assets/zhubai-toolbox-screenshots-01.png)
+
+---
+
 ![zhubai-toolbox-screenshots-02.png](assets/zhubai-toolbox-screenshots-02.png)
 
 > 保存订阅者数据到文件里，定期（每周）备份。推荐使用 git 管理这些文件，可以看到数据变更记录。
 
 > 如果文件上传到 GitHub/GitLab 等平台，因为涉及隐私数据，一定设置 repository 为 private。
-
-## 功能
-
-- ✅ 订阅者信息导出
-- Markdown 编辑器
 
 ## Installation
 
