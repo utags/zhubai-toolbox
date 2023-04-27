@@ -26,3 +26,58 @@
     padding: 5px;
   }
 }
+
+#left_section {
+  display: none;
+}
+
+html[data-zbtb="posts-entry"] {
+  --section-width: 300px;
+  margin-left: var(--section-width);
+  margin-right: var(--section-width);
+
+  nav {
+    left: 0;
+  }
+
+  #left_section {
+    display: block;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    padding: 0 0 72px;
+    height: 100%;
+    max-width: var(--section-width);
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .container {
+      padding: 20px;
+      height: 100%;
+      overflow: auto;
+      box-sizing: border-box;
+    }
+
+    .item {
+      display: block;
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      margin: 0;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 20px;
+      color: #1a1a1a;
+      word-wrap: break-word; /* Fix: iOS Safari Bug */
+      overflow-wrap: break-word;
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  html[data-zbtb="posts-entry"] {
+    --section-width: 200px;
+  }
+}

@@ -1,13 +1,18 @@
 import {
   $,
-  $$,
   addElement,
   addEventListener,
-  addStyle,
   createElement,
-  registerMenuCommand,
 } from "browser-extension-utils"
 import styleText from "data-text:./content.scss"
+import type { PlasmoCSConfig } from "plasmo"
+
+import { init, showPostList } from "./modules/post-list"
+
+export const config: PlasmoCSConfig = {
+  matches: ["https://*.zhubai.love/*"],
+  world: "MAIN",
+}
 
 async function fetchZhubaiSubscriptions(
   page: number,
@@ -43,8 +48,6 @@ async function fetchZhubaiSubscriptions(
 }
 
 async function main() {
-  addStyle(styleText)
-
   const subscriberEmailSet = new Set<string>()
   const subscribers = []
   let page = 1
@@ -133,19 +136,50 @@ async function main() {
   await run()
 }
 
-const intervalId = setInterval(() => {
-  const button = document.querySelector("th:nth-of-type(6) button")
-  if (button && button.textContent === "导入/导出") {
-    const newButton = createElement("button", {
-      textContent: "导入/导出",
-      class: "Button_button__2Ce79 Button_defaultButton__1bbUl",
+async function main2() {
+  if (!$("#zbtb_style")) {
+    addElement(document.head, "style", {
+      id: "zbtb_style",
+      textContent: styleText,
     })
-    button.after(newButton)
-    button.remove()
-    newButton.addEventListener("click", async (event) => {
-      await main()
-      event.preventDefault()
-    })
-    clearInterval(intervalId)
   }
-}, 1000)
+
+  const url = location.href
+  // Post page
+  if (/^https:\/\/\w+\.zhubai\.love\/posts\//.test(url)) {
+    document.documentElement.dataset.zbtb = "posts-entry"
+    ;(async () => {
+      const token = location.hostname.split(".")[0]
+      await init(token, showPostList)
+      await showPostList()
+    })()
+    // 订阅者 page
+  } else if (url.includes("https://zhubai.love/creator/subscribers")) {
+    const intervalId = setInterval(() => {
+      const button = document.querySelector("th:nth-of-type(6) button")
+      if (button && button.textContent === "导入/导出") {
+        const newButton = createElement("button", {
+          textContent: "导入/导出",
+          class: "Button_button__2Ce79 Button_defaultButton__1bbUl",
+        })
+        button.after(newButton)
+        button.remove()
+        newButton.addEventListener("click", async (event) => {
+          await main()
+          event.preventDefault()
+        })
+        clearInterval(intervalId)
+      }
+    }, 1000)
+  } else {
+    document.documentElement.dataset.zbtb = "0"
+  }
+}
+
+main2()
+addEventListener(window, "popstate", main2)
+const _pushState = history.pushState
+history.pushState = function (o, a, u) {
+  _pushState.call(history, o, a, u)
+  main2()
+}

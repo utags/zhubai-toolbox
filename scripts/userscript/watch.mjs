@@ -9,6 +9,8 @@ const buildOptions = getBuildOptions(target, tag)
 buildOptions.alias = {
   ...buildOptions.alias,
   "browser-extension-storage": "browser-extension-storage/userscript",
+  "browser-extension-storage/lib/local-storage":
+    "browser-extension-storage/local-storage",
   "browser-extension-utils": "browser-extension-utils/userscript",
 }
 
