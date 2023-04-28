@@ -9,13 +9,13 @@
 ## 功能
 
 - 详情页左侧栏显示文章目录 ✅
-- 详情页右侧栏显示网站目录大纲（TOC）(Comming soon)
+- 详情页右侧栏显示网站目录大纲（TOC） ✅
 - 订阅者信息导出 ✅
 - Markdown 编辑器 (Comming soon)
 
 ## 截图
 
-- 详情页左侧栏显示文章目录
+- 详情页左侧栏显示文章目录，详情页右侧栏显示网站目录大纲（TOC）、工具栏
 
 ![zhubai-toolbox-screenshots-03.png](assets/zhubai-toolbox-screenshots-03.png)
 
