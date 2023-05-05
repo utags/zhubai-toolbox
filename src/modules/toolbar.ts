@@ -27,11 +27,11 @@ export async function showToolbar() {
     const post = postList[i]
     if (post.id === currentId) {
       if (i > 0) {
-        previousId = postList[i - 1].id
+        nextId = postList[i - 1].id
       }
 
       if (i < postList.length - 1) {
-        nextId = postList[i + 1].id
+        previousId = postList[i + 1].id
       }
     }
   }
