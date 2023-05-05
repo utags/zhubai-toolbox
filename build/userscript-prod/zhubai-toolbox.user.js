@@ -4,7 +4,7 @@
 // @namespace            https://github.com/utags/zhubai-toolbox
 // @homepageURL          https://github.com/utags/zhubai-toolbox#readme
 // @supportURL           https://github.com/utags/zhubai-toolbox/issues
-// @version              0.1.1
+// @version              0.1.2
 // @description          Tools for Zhubai creators and readers. 为竹白（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
 // @description:zh-CN    为竹白（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。
 // @icon                 https://zhubai.love/favicon.png
@@ -16,6 +16,8 @@
 // ==/UserScript==
 //
 //// Recent Updates
+//// - 0.1.2 2023.05.05
+////    - 修改上一期，下一期按钮，修复 Violentmonkey, Greasemonkey(Firefox), Userscripts(Safari) 的兼容性问题
 //// - 0.1.1 2023.04.28
 ////    - 详情页右侧栏显示网站目录大纲（TOC）与工具栏
 //// - 0.1.0 2023.04.27
@@ -296,10 +298,10 @@
       const post = postList[i]
       if (post.id === currentId) {
         if (i > 0) {
-          previousId = postList[i - 1].id
+          nextId = postList[i - 1].id
         }
         if (i < postList.length - 1) {
-          nextId = postList[i + 1].id
+          previousId = postList[i + 1].id
         }
       }
     }

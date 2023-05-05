@@ -2,7 +2,7 @@
   "name": "zhubai-toolbox",
   "displayName": "Zhubai Toolbox 🧰",
   "displayName:zh-CN": "竹白工具箱 🧰",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Tools for Zhubai creators and readers. 为竹白（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。",
   "description:zh-CN": "为竹白（zhubai.love）创作者与阅读者的浏览器扩展、油猴脚本，包括详情页显示文章目录，详情页显示网站目录大纲（TOC），订阅者信息导出，Markdown 编辑器等功能。更多功能欢迎交流。",
   "author": "Pipecraft",

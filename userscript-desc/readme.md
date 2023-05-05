@@ -33,6 +33,15 @@ Tools for Zhubai creators and readers.
 
 > 如果文件上传到 GitHub/GitLab 等平台，因为涉及隐私数据，一定设置 repository 为 private。
 
+## 其他
+
+兼容以下用户脚本管理器
+
+- Tampermonkey (推荐)
+- Violentmonkey
+- Greasemonkey
+- Userscripts (Safari)
+
 ## About
 
 - Repository: [https://github.com/utags/zhubai-toolbox](https://github.com/utags/zhubai-toolbox)
@@ -41,6 +50,7 @@ Tools for Zhubai creators and readers.
 ## Other Userscripts
 
 - [🏷️ 小鱼标签 (UTags) - 为链接添加用户标签，支持 V2EX](https://greasyfork.org/scripts/460718-utags-add-usertags-to-links)
+- [🔗 链接助手](https://greasyfork.org/scripts/464541-links-helper)
 - [Hacker News 网站切换器](https://greasyfork.org/scripts/462865-hacker-news-apps-switcher)
 
 ## License

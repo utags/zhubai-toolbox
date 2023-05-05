@@ -15,6 +15,8 @@
 // ==/UserScript==
 //
 //// Recent Updates
+//// - 0.1.2 2023.05.05
+////    - 修改上一期，下一期按钮，修复 Violentmonkey, Greasemonkey(Firefox), Userscripts(Safari) 的兼容性问题
 //// - 0.1.1 2023.04.28
 ////    - 详情页右侧栏显示网站目录大纲（TOC）与工具栏
 //// - 0.1.0 2023.04.27
